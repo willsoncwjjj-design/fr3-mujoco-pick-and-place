@@ -1,0 +1,87 @@
+{
+  "generated_at": "2026-07-29 16:16:43",
+  "project_source": "repository snapshot",
+  "seed": 20260729,
+  "trial_count": 60,
+  "randomization_domain_m": {
+    "x": [
+      0.12,
+      0.5
+    ],
+    "y": [
+      0.03,
+      0.32
+    ],
+    "z": 0.85,
+    "min_clearance_to_fixed_objects": 0.12
+  },
+  "success": {
+    "count": 53,
+    "rate": 0.8833333333333333,
+    "wilson_95_ci": [
+      0.7782097940014187,
+      0.9423235259654995
+    ]
+  },
+  "stage_counts": {
+    "perception_success": 60,
+    "localization_success": 60,
+    "planning_success": 53,
+    "execution_success": 53,
+    "controller_success": 53,
+    "e2e_success": 53
+  },
+  "localization_xy_error_m": {
+    "n": 60,
+    "median": 0.0025872700885173757,
+    "p95": 0.004468749895840374,
+    "max": 0.0050872941598264975
+  },
+  "successful_place_error_m": {
+    "n": 53,
+    "median": 0.008443136055404378,
+    "p95": 0.024694895211548135,
+    "max": 0.02552176005818726
+  },
+  "ik_iterations": {
+    "Approach": 9,
+    "Descend": 6,
+    "Lift": 7,
+    "Transfer": 26,
+    "Place": 9
+  },
+  "tracking": {
+    "point_count": 250,
+    "joint_rmse_mean_rad": 0.0326404401258517,
+    "joint_rmse_p95_rad": 0.08572072792146733,
+    "joint_rmse_max_rad": 0.08585348476040235,
+    "ee_error_mean_m": 0.0219261565162279,
+    "ee_error_p95_m": 0.0621599695615217,
+    "ee_error_max_m": 0.06261742348918778,
+    "baseline_cycle": {
+      "perception_success": true,
+      "localization_success": true,
+      "planning_success": true,
+      "execution_success": true,
+      "controller_success": true,
+      "failure_reason": "",
+      "e2e_success": true,
+      "moved_distance_m": 0.29165007302003,
+      "place_error_m": 0.0083533780297243
+    }
+  },
+  "failure_counts": {
+    "IK feasibility check failed": 7
+  },
+  "model": {
+    "nq": 37,
+    "nv": 33,
+    "nu": 9,
+    "nbody": 18,
+    "njnt": 13,
+    "ngeom": 45,
+    "nsite": 1,
+    "ncam": 1,
+    "timestep_s": 0.002
+  }
+}

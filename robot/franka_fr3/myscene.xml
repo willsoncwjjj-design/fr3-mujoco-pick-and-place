@@ -1,0 +1,68 @@
+
+<mujoco>
+    <include file="fr3.xml"/>
+    <compiler angle="radian" autolimits="true"/>
+    <option timestep="0.002" gravity="0 0 -9.81"/>
+
+    <asset>
+        <texture name="grid" type="2d" builtin="checker"
+        width="800" height="800" rgb1=".2 .4 .5" rgb2=".3 .5 .6"/>
+        <material name="grid" texture="grid" texrepeat="1 1" reflectance=".2"/>
+        <material name="table" rgba="0.6 0.4 0.2 1"/>
+    </asset>
+
+    <worldbody>
+        <light diffuse="0.9 0.9 0.9" pos="0 0 5" dir="0 0 -1"/>
+        <!-- 固定俯视相机：xyaxes 显式定义朝向(x_cam=世界+x, y_cam=世界+y, 视线=-z)，
+             不用 tracking 相机——其俯视时 roll 退化、lookat 依赖 stat.center 不可控 -->
+        <camera name="top_cam" pos="0.25 0 2.3" xyaxes="1 0 0 0 1 0" fovy="45"/>
+        <geom type="plane" size="2 2 0.1" material="grid"/>
+        <body name="table" pos="0.25 0 0.8">
+            <geom type="box" size="0.4 0.4 0.02"
+                  material="table" contype="1" conaffinity="1"/>
+        </body>
+
+        <!-- place_zone 标记放在桌面上，与 grasp_planner.place_xy 对齐，远离其他物体 -->
+        <body name="place_zone" pos="0.3 -0.15 0.825">
+            <geom type="box" size="0.08 0.08 0.005" rgba="0.2 0.8 0.2 1" contype = "0" conaffinity = "0"/>
+        </body>
+
+        <body name="cube_red" pos="0.3 0.15 0.85">
+            <freejoint/>
+            <geom type="box" size="0.03 0.03 0.03"
+                  rgba="0.8 0.2 0.2 1"
+                  contype="1" conaffinity="1"
+                  friction="0.5 0.005 0.0001"/>
+        </body>
+
+        <body name="cube_blue" pos="0.45 -0.05 0.87">
+            <freejoint/>
+            <geom type="box" size="0.04 0.04 0.02"
+                  rgba="0.2 0.4 0.9 1"
+                  contype="1" conaffinity="1"
+                  friction="0.5 0.005 0.0001"/>
+        </body>
+
+        <!-- Objects remain at least 14 cm apart to clear the open gripper. -->
+        <body name="cyl_green" pos="0.15 0.3 0.88">
+            <freejoint/>
+            <geom type="cylinder" size="0.03 0.06"
+                  rgba="0.2 0.7 0.3 1"
+                  contype="1" conaffinity="1"
+                  friction="0.5 0.005 0.0001"/>
+        </body>
+
+        <body name="sphere_yellow" pos="0.5 0.15 0.855">
+            <freejoint/>
+            <geom type="sphere" size="0.035"
+                  rgba="0.9 0.8 0.2 1"
+                  contype="1" conaffinity="1"
+                  friction="0.5 0.005 0.0001"/>
+        </body>
+    </worldbody>
+
+    <contact>
+        <!-- 机器人站在桌面上，基座与桌面是静置接触，排除避免无意义接触力 -->
+        <exclude body1="table" body2="fr3_link0"/>
+    </contact>
+</mujoco>

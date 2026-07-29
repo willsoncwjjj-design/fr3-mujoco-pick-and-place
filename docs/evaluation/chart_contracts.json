@@ -1,0 +1,32 @@
+{
+  "01_workspace_outcomes.png": {
+    "question": "Where does the current closed-loop system succeed or fail?",
+    "grain": "one point per randomized trial",
+    "encoding": "x/y = initial target position; color/shape = end-to-end outcome"
+  },
+  "02_stage_funnel.png": {
+    "question": "At which stage are trials lost?",
+    "grain": "count of the same 60 trials at each ordered gate",
+    "encoding": "bar length = count; annotation = count and percentage"
+  },
+  "03_localization_distribution.png": {
+    "question": "How large is the XY localization error?",
+    "grain": "one localization result per trial",
+    "encoding": "histogram frequency; median and P95 reference lines"
+  },
+  "04_placement_distribution.png": {
+    "question": "How accurate is the final placement among successful trials?",
+    "grain": "one final ground-truth position per successful trial",
+    "encoding": "histogram frequency; median, P95 and success threshold"
+  },
+  "05_ik_convergence.png": {
+    "question": "How quickly does each baseline waypoint converge?",
+    "grain": "one line per waypoint, one point per DLS iteration",
+    "encoding": "log y = combined solver residual; x = iteration"
+  },
+  "06_tracking_error.png": {
+    "question": "How closely does the position servo follow the 250-point plan?",
+    "grain": "one observation after each trajectory target hold",
+    "encoding": "x = trajectory point; y = joint RMSE or EE position error"
+  }
+}

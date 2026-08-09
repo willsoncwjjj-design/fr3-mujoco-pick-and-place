@@ -196,6 +196,35 @@ class Controller:
                 self._step(self.GRIPPER_SETTLE_STEPS)
             self._step(self.STEPS_PER_TRAJECTORY_POINT)
 
+    def execute_joint_target(
+        self,
+        target_qpos,
+        gripper_command=None,
+        control_steps=10,
+    ):
+        """执行一个经过上层适配的关节目标，不启动完整抓放状态机。"""
+        values = np.asarray(target_qpos, dtype=float)
+        if values.shape != (7,) or not np.all(np.isfinite(values)):
+            raise ValueError("target_qpos must contain seven finite values")
+        limits = np.asarray(self.robot.joint_limits, dtype=float)
+        if limits.shape != (7, 2) or np.any(values < limits[:, 0]) or np.any(
+            values > limits[:, 1]
+        ):
+            raise ValueError("target_qpos violates joint limits")
+        if gripper_command not in {None, "open", "close"}:
+            raise ValueError("Invalid gripper command")
+        if int(control_steps) != control_steps or control_steps < 1:
+            raise ValueError("control_steps must be a positive integer")
+        self.robot.set_ctrl(values)
+        self.gripper.execute(gripper_command)
+        self._step(int(control_steps))
+        return {
+            "success": True,
+            "joint_target": values.copy(),
+            "gripper_command": gripper_command,
+            "control_steps": int(control_steps),
+        }
+
     def _verify(self):
         self.state = RobotState.VERIFY
         self._retreat_to_home()

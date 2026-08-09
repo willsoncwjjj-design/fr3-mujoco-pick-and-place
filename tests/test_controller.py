@@ -142,6 +142,41 @@ def test_run_cycle_classifies_localization_failure():
     assert result["error_message"] == "No objects localized"
 
 
+def test_execute_joint_target_uses_servo_and_fixed_control_steps():
+    controller = make_controller([0.3, 0.15, 0.88])
+    robot = SimpleNamespace(
+        joint_limits=[(-1.0, 1.0)] * 7,
+        set_ctrl=lambda values: setattr(robot, "target", np.asarray(values)),
+    )
+    gripper = SimpleNamespace(
+        execute=lambda command: setattr(gripper, "command", command)
+    )
+    env = SimpleNamespace(step_count=0)
+    env.step = lambda: setattr(env, "step_count", env.step_count + 1)
+    controller.robot = robot
+    controller.gripper = gripper
+    controller.env = env
+
+    result = controller.execute_joint_target(
+        [0.1] * 7,
+        gripper_command="close",
+        control_steps=4,
+    )
+
+    assert result["success"]
+    assert robot.target == pytest.approx([0.1] * 7)
+    assert gripper.command == "close"
+    assert env.step_count == 4
+
+
+def test_execute_joint_target_rejects_unsafe_command():
+    controller = make_controller([0.3, 0.15, 0.88])
+    controller.robot = SimpleNamespace(joint_limits=[(-1.0, 1.0)] * 7)
+
+    with pytest.raises(ValueError, match="joint limits"):
+        controller.execute_joint_target([2.0] * 7)
+
+
 @pytest.mark.parametrize(
     ("failed_state", "expected_code"),
     [

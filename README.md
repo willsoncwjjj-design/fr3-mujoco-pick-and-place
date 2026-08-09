@@ -191,6 +191,42 @@ python warehouse_agent_evaluate.py --planner ollama --model qwen2.5:7b --trials 
 成功试次的最终放置误差分布。逐次 CSV 和汇总 JSON 默认写入未纳入版本控制的
 `artifacts/agent_evaluation/<planner>/`，便于保留并比较不同规划器结果。
 
+## VLA Action-Chunk Runtime（Phase 1A）
+
+该阶段先验证 VLA 动作如何接入现有 FR3 控制链，不训练或加载真实 VLA 模型。
+系统把相机图像、机器人状态和语言指令封装为带序号的观测；确定性模拟策略输出
+末端增量动作块，Runtime 再逐步转换并执行：
+
+```mermaid
+flowchart LR
+    A["RGB + Robot State + Language"] --> B["VLA Policy Interface"]
+    B --> C["Action Chunk"]
+    C --> D["Action Manager"]
+    D --> E["Delta-EE Adapter"]
+    E --> F["DLS IK + Joint Limit Check"]
+    F --> G["FR3 Position Controller"]
+    G --> H["MuJoCo"]
+    A -. "new observation_id" .-> D
+```
+
+已实现的运行时能力：
+
+- 观测契约：只读 RGB、7 维关节位置/速度、末端位姿、夹爪状态与语言子目标。
+- 动作契约：世界坐标系下的末端位置/旋转增量，以及可选夹爪开合命令。
+- 动作适配：增量限幅、工作空间检查、DLS IK 和 FR3 关节限位校验。
+- 动作管理：按序消费动作块，拒绝过期观测产生的动作，并在单步动作结束后安全抢占。
+- 异步策略接口：模拟推理延迟不会阻塞控制线程，返回结果保留请求与观测序号。
+
+运行确定性抢占演示：
+
+```bash
+python vla_runtime_demo.py
+```
+
+演示先执行旧动作块的第一个动作，再注入新观测；旧动作块剩余两个动作被取消，
+随后执行新动作块的两个动作。输出包含完整事件序列，可用于核对激活、分发、取消
+和完成边界。这里的 `ScriptedPolicy` 仅用于验证 Runtime，不代表模型推理效果。
+
 ## 测试与评估
 
 安装开发依赖并运行快速测试：
@@ -227,6 +263,7 @@ python -m scripts.evaluate_randomized --trials 60
 ├── simulation/              # 场景加载与仿真步进
 ├── tests/                   # 单元测试和端到端测试
 ├── warehouse/               # 仓储场景配置、任务协议和本地规划器
+├── vla_runtime/             # VLA 观测、动作块、适配与可抢占执行接口
 ├── scripts/                 # 随机工况评估工具
 ├── docs/                    # 技术报告、图表与冻结评估数据
 ├── warehouse_preview.py     # 仓储任务无运动预执行入口
@@ -236,6 +273,7 @@ python -m scripts.evaluate_randomized --trials 60
 ├── warehouse_complex_run.py # 库位占用与搬移任务入口
 ├── warehouse_agent_run.py   # Ollama 观察—规划—执行闭环入口
 ├── warehouse_agent_evaluate.py # Agent 固定种子批评估入口
+├── vla_runtime_demo.py      # 动作块抢占与重规划演示入口
 └── main.py                  # 单次抓取放置入口
 ```
 
@@ -244,7 +282,8 @@ python -m scripts.evaluate_randomized --trials 60
 这是仿真验证项目，不宣称已经完成实机部署：
 
 - 当前检测使用 MuJoCo ground-truth segmentation，不是训练后的视觉模型。
-- 当前策略是解析式任务流程与 DLS IK，不包含强化学习、VLA 或训练曲线。
+- 当前动作策略仍是解析式流程或确定性模拟策略；已具备 VLA Runtime 接口，但未接入
+  真实 VLA 权重、强化学习或训练曲线。
 - 随机评估中的 7 次失败均发生在工作空间内侧边界，原因是锁姿态 IK 不可达。
 - 实机迁移仍需接入 RGB-D 相机标定、真实检测器、机器人驱动、安全 PLC/急停、
   碰撞约束与分阶段现场验收。

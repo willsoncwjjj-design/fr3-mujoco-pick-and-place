@@ -1,0 +1,42 @@
+{
+  "task_id": "warehouse_sorting_v1",
+  "goal": "将当前货物按货类分拣到指定库位，并逐件校验结果",
+  "inventory": [
+    {
+      "object_id": "cube_red",
+      "sku": "SKU-R-001",
+      "category": "priority",
+      "destination_id": "priority_bin.slot_1"
+    },
+    {
+      "object_id": "sphere_yellow",
+      "sku": "SKU-Y-001",
+      "category": "priority",
+      "destination_id": "priority_bin.slot_2"
+    },
+    {
+      "object_id": "cube_blue",
+      "sku": "SKU-B-001",
+      "category": "standard",
+      "destination_id": "standard_bin.slot_1"
+    },
+    {
+      "object_id": "cyl_green",
+      "sku": "SKU-G-001",
+      "category": "standard",
+      "destination_id": "standard_bin.slot_2"
+    }
+  ],
+  "destinations": {
+    "priority_bin.slot_1": {"place_xy": [0.22, -0.16]},
+    "priority_bin.slot_2": {"place_xy": [0.38, -0.16]},
+    "standard_bin.slot_1": {"place_xy": [0.22, -0.30]},
+    "standard_bin.slot_2": {"place_xy": [0.38, -0.30]}
+  },
+  "failure_policy": {
+    "object_missing": "rescan",
+    "pick_failed": "retry_once",
+    "ik_failed": "skip_and_report",
+    "verification_failed": "stop"
+  }
+}

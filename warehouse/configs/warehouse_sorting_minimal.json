@@ -1,0 +1,34 @@
+{
+  "task_id": "warehouse_sorting_minimal_v1",
+  "goal": "将红色和蓝色货物分别分拣到两个指定库位，并逐件校验结果",
+  "inventory": [
+    {
+      "object_id": "cube_red",
+      "sku": "SKU-R-001",
+      "category": "priority",
+      "destination_id": "priority_bin.slot_1"
+    },
+    {
+      "object_id": "cube_blue",
+      "sku": "SKU-B-001",
+      "category": "standard",
+      "destination_id": "standard_bin.slot_1"
+    }
+  ],
+  "destinations": {
+    "priority_bin.slot_1": {
+      "body_name": "priority_bin_slot_1",
+      "place_xy": [0.30, -0.18]
+    },
+    "standard_bin.slot_1": {
+      "body_name": "standard_bin_slot_1",
+      "place_xy": [0.46, -0.18]
+    }
+  },
+  "failure_policy": {
+    "object_missing": "rescan",
+    "pick_failed": "retry_once",
+    "ik_failed": "skip_and_report",
+    "verification_failed": "stop"
+  }
+}

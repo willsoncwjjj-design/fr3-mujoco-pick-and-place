@@ -19,6 +19,17 @@ class RobotState(Enum):
     DONE = auto()
 
 
+FAILURE_CODE_BY_STATE = {
+    RobotState.IDLE: "invalid_request",
+    RobotState.PERCEIVE: "object_missing",
+    RobotState.LOCALIZE: "object_missing",
+    RobotState.PLAN: "ik_failed",
+    RobotState.CHECK_REACHABILITY: "ik_failed",
+    RobotState.EXECUTE: "pick_failed",
+    RobotState.VERIFY: "verification_failed",
+}
+
+
 class Controller:
     GRIPPER_SETTLE_STEPS = 100
     STEPS_PER_TRAJECTORY_POINT = 10
@@ -59,11 +70,23 @@ class Controller:
         self.grasp_pose = None
         self.trajectory = None
         self.gripper_cmds = None
+        self.target_place_xy = np.asarray(
+            self.grasp_planner.place_xy, dtype=float
+        ).copy()
         self.result = None
         self.error_info = None
+        self.verification_metrics = None
 
-    def run_cycle(self, target_object_idx=0, target_body_id=None):
+    def run_cycle(
+        self,
+        target_object_idx=0,
+        target_body_id=None,
+        place_xy=None,
+    ):
+        self.state = RobotState.IDLE
+        self.verification_metrics = None
         try:
+            self.target_place_xy = self._resolve_place_xy(place_xy)
             self._perceive()
             self._localize(target_object_idx, target_body_id)
             self._plan()
@@ -79,8 +102,19 @@ class Controller:
             "success": True,
             "state": self.state,
             "target_object": self.target_object,
+            "place_xy": self.target_place_xy.copy(),
+            "failure_code": None,
+            "failed_state": None,
+            "verification": self.verification_metrics,
         }
         return self.result
+
+    def _resolve_place_xy(self, place_xy):
+        target = self.grasp_planner.place_xy if place_xy is None else place_xy
+        values = np.asarray(target, dtype=float)
+        if values.shape != (2,) or not np.all(np.isfinite(values)):
+            raise ValueError("place_xy must contain two finite values")
+        return values.copy()
 
     def _perceive(self):
         self.state = RobotState.PERCEIVE
@@ -128,7 +162,8 @@ class Controller:
     def _plan(self):
         self.state = RobotState.PLAN
         self.grasp_pose = self.grasp_planner.compute_grasp_pose(
-            self.object_position
+            self.object_position,
+            place_xy=self.target_place_xy,
         )
         if not self.grasp_planner.check_ik_feasible(self.grasp_pose):
             raise RuntimeError("IK feasibility check failed")
@@ -227,13 +262,29 @@ class Controller:
             None,
         )
         if current is None:
+            self.verification_metrics = {
+                "target_visible": False,
+                "moved_distance_m": None,
+                "place_error_m": None,
+                "minimum_movement_m": self.MINIMUM_OBJECT_MOVEMENT_M,
+                "maximum_place_error_m": self.MAXIMUM_PLACE_ERROR_M,
+            }
             LOGGER.warning("Target is not visible after execution")
             return False
 
-        moved_distance = np.linalg.norm(current[:2] - self.object_position[:2])
-        place_error = np.linalg.norm(
-            current[:2] - self.grasp_planner.place_xy
+        moved_distance = float(
+            np.linalg.norm(current[:2] - self.object_position[:2])
         )
+        place_error = float(
+            np.linalg.norm(current[:2] - self.target_place_xy)
+        )
+        self.verification_metrics = {
+            "target_visible": True,
+            "moved_distance_m": moved_distance,
+            "place_error_m": place_error,
+            "minimum_movement_m": self.MINIMUM_OBJECT_MOVEMENT_M,
+            "maximum_place_error_m": self.MAXIMUM_PLACE_ERROR_M,
+        }
         LOGGER.info(
             "Verification: moved=%.1f mm, place error=%.1f mm",
             moved_distance * 1000,
@@ -245,11 +296,19 @@ class Controller:
         )
 
     def _fail(self, error_message):
+        failed_state = self.state
+        failure_code = FAILURE_CODE_BY_STATE.get(
+            failed_state,
+            "internal_error",
+        )
         self.state = RobotState.FAIL
         self.error_info = error_message
         self.result = {
             "success": False,
             "state": self.state,
             "error_message": error_message,
+            "failure_code": failure_code,
+            "failed_state": failed_state.name,
+            "verification": self.verification_metrics,
         }
         return self.result

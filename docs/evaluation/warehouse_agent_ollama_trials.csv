@@ -1,0 +1,3 @@
+trial_id,planner,success,termination_reason,iteration_count,planning_calls,planner_requests,plan_rejections,relocation_count,execution_failure_count,sim_time_s,wall_time_s,failure_codes,error_message,final_error_cube_red_m,final_error_cube_blue_m,start_cube_red_x_m,start_cube_red_y_m,start_cube_blue_x_m,start_cube_blue_y_m
+1,ollama,True,goal_satisfied,3,3,4,1,1,0,20.63999999999922,76.78015100001357,{},,0.008490208329185381,0.008596268449267612,0.2835971980840726,0.14521470130337227,0.2919630523762637,-0.17415817625890676
+2,ollama,True,goal_satisfied,3,3,5,2,1,0,20.63999999999922,98.99296770896763,{},,0.008490208329185381,0.008596268449267612,0.30081203047054267,0.13822140614656186,0.2971197557736383,-0.18223968360434564

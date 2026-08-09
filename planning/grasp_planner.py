@@ -15,18 +15,31 @@ class GraspPlanner:
         # Matches the marker in myscene.xml and stays within the verified workspace.
         self.place_xy = np.array([0.3, -0.15])
 
-    def compute_grasp_pose(self, object_position):
+    def compute_grasp_pose(self, object_position, place_xy=None):
         x, y, z = np.asarray(object_position, dtype=float)
+        target_place_xy = (
+            self.place_xy
+            if place_xy is None
+            else np.asarray(place_xy, dtype=float)
+        )
+        if target_place_xy.shape != (2,) or not np.all(
+            np.isfinite(target_place_xy)
+        ):
+            raise ValueError("place_xy must contain two finite values")
         return {
             "pre": np.array([x, y, z + self.approach_height]),
             "grasp": np.array([x, y, z + self.grasp_offset]),
             "lift": np.array([x, y, z + self.approach_height]),
             "place_pre": np.array(
-                [self.place_xy[0], self.place_xy[1], z + self.approach_height]
+                [
+                    target_place_xy[0],
+                    target_place_xy[1],
+                    z + self.approach_height,
+                ]
             ),
             # The placement height is near the FR3 workspace boundary; adding the
             # grasp offset here makes the locked-orientation pose unreachable.
-            "place": np.array([self.place_xy[0], self.place_xy[1], z]),
+            "place": np.array([target_place_xy[0], target_place_xy[1], z]),
             "orn": np.array([0.0, 1.0, 0.0, 0.0]),
         }
 

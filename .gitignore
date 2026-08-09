@@ -17,6 +17,7 @@ venv/
 # Editors and operating systems
 .idea/
 .vscode/
+.agents/
 .DS_Store
 Thumbs.db
 *.swp

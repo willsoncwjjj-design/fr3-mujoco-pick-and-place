@@ -189,7 +189,7 @@ class Controller:
         for qpos, command in zip(
             self.trajectory, self.gripper_cmds, strict=True
         ):
-            # Position servos preserve physical contacts; direct qpos writes do not.
+            # 位置伺服能够保留物理接触，直接写入 qpos 则不能。
             self.robot.set_ctrl(qpos)
             if command is not None:
                 self.gripper.execute(command)
@@ -203,7 +203,7 @@ class Controller:
             raise RuntimeError("Placement verification failed")
 
     def _retreat_to_home(self, lift_height=0.15):
-        """Lift vertically before returning home to avoid sweeping the object."""
+        """返回初始位前先垂直抬升，避免机械臂横向扫动物体。"""
         end_effector_position, _ = self.robot.get_end_effector_pose()
         lift_target = end_effector_position + np.array([0.0, 0.0, lift_height])
         lift_qpos = self.grasp_planner.ik_solver.solve(

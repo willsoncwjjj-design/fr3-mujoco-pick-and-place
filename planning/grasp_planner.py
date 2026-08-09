@@ -12,7 +12,7 @@ class GraspPlanner:
         )
         self.grasp_offset = 0.02
         self.approach_height = 0.10
-        # Matches the marker in myscene.xml and stays within the verified workspace.
+        # 与 myscene.xml 中的标记位置一致，并处于已验证工作空间内。
         self.place_xy = np.array([0.3, -0.15])
 
     def compute_grasp_pose(self, object_position, place_xy=None):
@@ -37,8 +37,8 @@ class GraspPlanner:
                     z + self.approach_height,
                 ]
             ),
-            # The placement height is near the FR3 workspace boundary; adding the
-            # grasp offset here makes the locked-orientation pose unreachable.
+            # 放置高度接近 FR3 工作空间边界；此处若叠加抓取偏移量，
+            # 锁定姿态后的目标位姿将不可达。
             "place": np.array([target_place_xy[0], target_place_xy[1], z]),
             "orn": np.array([0.0, 1.0, 0.0, 0.0]),
         }
@@ -52,5 +52,5 @@ class GraspPlanner:
         return True
 
     def check_Ik_feasible(self, grasp_pose):
-        """Backward-compatible alias for earlier project versions."""
+        """用于兼容项目早期版本的别名。"""
         return self.check_ik_feasible(grasp_pose)

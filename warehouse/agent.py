@@ -34,7 +34,7 @@ class AgentRunResult:
 
 
 class ClosedLoopWarehouseAgent:
-    """Replan from observed state after every high-level robot operation."""
+    """每次高层机器人操作后，根据最新观测状态重新规划。"""
 
     def __init__(
         self,

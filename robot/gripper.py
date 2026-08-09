@@ -2,7 +2,7 @@ import mujoco
 
 
 class PandaGripper:
-    """Control both fingers through MuJoCo position servos."""
+    """通过 MuJoCo 位置伺服控制两个夹爪手指。"""
 
     OPEN_POSITION = 0.04
     CLOSED_POSITION = 0.0

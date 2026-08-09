@@ -3,7 +3,7 @@ import numpy as np
 
 
 class DLSIKSolver:
-    """Damped least-squares inverse kinematics for the seven FR3 arm joints."""
+    """用于 FR3 七个机械臂关节的阻尼最小二乘逆运动学。"""
 
     ARM_JOINT_NAMES = tuple(f"fr3_joint{i}" for i in range(1, 8))
 
@@ -18,7 +18,7 @@ class DLSIKSolver:
     ):
         self.model = robot_model
         self.sim_data = robot_data
-        # IK uses private MjData so feasibility checks cannot mutate simulation state.
+        # IK 使用独立 MjData，避免可行性检查修改仿真状态。
         self.data = mujoco.MjData(robot_model)
         self.lambda_damping = float(lambda_damping)
         self.max_iterations = int(max_iterations)
@@ -69,7 +69,7 @@ class DLSIKSolver:
             if np.linalg.norm(error) < self.tolerance:
                 return self._limit_aware_result(target_pos)
 
-            # DLS: dq = J^T (J J^T + lambda^2 I)^-1 error.
+            # DLS：dq = J^T (J J^T + lambda^2 I)^-1 error。
             jj_t = jacobian @ jacobian.T
             regularized = jj_t + self.lambda_damping**2 * np.eye(jj_t.shape[0])
             delta_q = jacobian.T @ np.linalg.solve(regularized, error)
@@ -123,7 +123,7 @@ class DLSIKSolver:
         if np.all((solution >= limits[:, 0]) & (solution <= limits[:, 1])):
             return solution
 
-        # Clamping inside the iteration loop can oscillate at joint limits.
+        # 在迭代循环内执行限幅可能导致结果在关节限位附近振荡。
         clamped = np.clip(solution, limits[:, 0], limits[:, 1])
         self.data.qpos[self.arm_qposadr] = clamped
         mujoco.mj_forward(self.model, self.data)

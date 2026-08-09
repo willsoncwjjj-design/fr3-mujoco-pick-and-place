@@ -3,7 +3,7 @@ import numpy as np
 
 
 class SimCamera:
-    """Render aligned RGB, depth, and segmentation frames from a fixed camera."""
+    """从固定相机渲染对齐的 RGB、深度图和分割图。"""
 
     def __init__(self, model, data, height=480, width=640, camera_name="top_cam"):
         self.model = model
@@ -54,7 +54,7 @@ class SimCamera:
         return rgb, depth, segmentation, camera_pose
 
     def get_camera_pose(self):
-        # cam_xmat columns follow OpenGL camera axes: right, up, backward.
+        # cam_xmat 的列遵循 OpenGL 相机坐标轴：右、上、后。
         return {
             "position": self.data.cam_xpos[self.cam_id].copy(),
             "rotation": self.data.cam_xmat[self.cam_id].copy().reshape(3, 3),

@@ -2,7 +2,7 @@ import numpy as np
 
 
 class Detector:
-    """Simulation segmentation detector with a reserved real-detector adapter."""
+    """仿真分割检测器，并为真实检测器预留适配接口。"""
 
     SIM_MODE = "simulation"
     REAL_MODE = "real"
@@ -23,7 +23,7 @@ class Detector:
         } if object_catalog else set()
         detections = []
 
-        # Segmentation channel 0 contains geom IDs, not body IDs.
+        # 分割图的第 0 通道保存 geom ID，而不是 body ID。
         for geom_id in np.unique(seg_mask[..., 0]).astype(int):
             if not 0 <= geom_id < self.model.ngeom:
                 continue

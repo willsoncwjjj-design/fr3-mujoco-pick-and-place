@@ -50,7 +50,7 @@ class TaskExecutionResult:
 
 
 class WarehouseTaskExecutor:
-    """Compile high-level warehouse operations into controller cycles."""
+    """将高层仓储操作编译为控制器执行周期。"""
 
     RETRY_ACTIONS = frozenset(("rescan", "retry_once"))
 
@@ -117,7 +117,7 @@ class WarehouseTaskExecutor:
         )
 
     def execute_next(self, plan: TaskPlan) -> TaskExecutionResult:
-        """Execute only the next motion operation from a validated plan."""
+        """仅执行已验证计划中的下一个运动操作。"""
         if self.controller is None:
             raise RuntimeError("A controller is required for warehouse execution")
         cycles = self.prepare(plan)

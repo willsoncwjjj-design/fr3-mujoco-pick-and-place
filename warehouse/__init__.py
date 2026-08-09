@@ -1,4 +1,4 @@
-"""Warehouse planning, execution, and observed-state interfaces."""
+"""仓储任务规划、执行与观测状态接口。"""
 
 from warehouse.agent import AgentRunResult, ClosedLoopWarehouseAgent
 from warehouse.planners import ConstraintAwarePlanner, OllamaPlanner, RuleBasedPlanner

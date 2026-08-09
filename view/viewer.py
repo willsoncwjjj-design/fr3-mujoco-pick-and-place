@@ -7,7 +7,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 class Viewer:
-    """Synchronize a passive MuJoCo viewer with SimScene.step."""
+    """将被动 MuJoCo 查看器与 SimScene.step 同步。"""
 
     def __init__(
         self,

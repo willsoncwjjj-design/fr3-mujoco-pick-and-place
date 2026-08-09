@@ -2,7 +2,7 @@ import numpy as np
 
 
 class ObjectLocalizer:
-    """Back-project segmented depth pixels into world coordinates."""
+    """将分割区域内的深度像素反投影到世界坐标系。"""
 
     TOP_SURFACE_BAND_M = 0.02
 
@@ -33,8 +33,8 @@ class ObjectLocalizer:
             v = int(ys.mean()) + y0
             point_cv = self.pixel_to_camera(u, v, nearest_depth)
 
-            # Pinhole back-projection uses OpenCV axes (right, down, forward),
-            # while MuJoCo camera poses use OpenGL axes (right, up, backward).
+            # 针孔反投影使用 OpenCV 坐标轴（右、下、前），
+            # MuJoCo 相机位姿使用 OpenGL 坐标轴（右、上、后）。
             point_gl = point_cv * np.array([1.0, -1.0, -1.0])
             point_world = self.camera_to_world(
                 point_gl, camera_position, camera_rotation

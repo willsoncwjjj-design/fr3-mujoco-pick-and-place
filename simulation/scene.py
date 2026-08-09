@@ -4,7 +4,7 @@ import mujoco
 
 
 class SimScene:
-    """Load and advance a MuJoCo scene."""
+    """加载并推进 MuJoCo 场景。"""
 
     def __init__(self):
         self.model = None

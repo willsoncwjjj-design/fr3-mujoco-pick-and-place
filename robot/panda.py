@@ -22,7 +22,7 @@ class PandaRobot:
             raise ValueError(f"Site '{self.END_EFFECTOR_SITE}' does not exist")
 
     def _joint_id(self, name):
-        # A missing name returns -1; using it as an index corrupts qpos[-1].
+        # 名称不存在时会返回 -1，将其作为索引会错误修改 qpos[-1]。
         joint_id = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_JOINT, name)
         if joint_id < 0:
             raise ValueError(f"Joint '{name}' does not exist")
@@ -47,7 +47,7 @@ class PandaRobot:
         mujoco.mj_forward(self.model, self.data)
 
     def set_ctrl(self, positions):
-        """Set position-servo targets without teleporting the simulated robot."""
+        """设置位置伺服目标，避免让仿真机器人瞬移。"""
         positions = self._validate_positions(positions)
         for actuator_id, position in zip(
             self.arm_act_ids, positions, strict=True
@@ -72,5 +72,5 @@ class PandaRobot:
         return position, quaternion
 
     def get_end_effect_position(self):
-        """Backward-compatible alias for earlier project versions."""
+        """用于兼容项目早期版本的别名。"""
         return self.get_end_effector_pose()
